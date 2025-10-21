@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LR(1) Parser Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>LR(1) Parser</h1>
+      <p>Visualizador interactivo de análisis sintáctico LR(1)</p>
+    </header>    <main class="main-content">
+      <section class="input-section">
+        <div class="input-group">
+          <label for="grammar">Gramática (formato tradicional)</label>
+          <textarea id="grammar" placeholder="A' -> A
+A -> ( A )
+A -> a"></textarea>
+        </div>
+      </section>
+
+      <div class="parse-button-container">
+        <button id="parseBtn" class="parse-btn">
+          <span class="btn-text">Analizar Gramática</span>
+        </button>
+      </div>      <section id="result" class="results-section">
+        <!-- Controles de acordeón -->
+        <div class="accordion-controls">
+          <button id="expandAllBtn" class="control-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6,9 12,15 18,9"></polyline>
+            </svg>
+            Expandir Todo
+          </button>
+          <button id="collapseAllBtn" class="control-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="18,15 12,9 6,15"></polyline>
+            </svg>
+            Colapsar Todo
+          </button>
+        </div>
+        
+        <!-- 1. Gramática Aumentada -->
+        <div class="section-container">
+          <h2 class="section-title accordion-header" data-section="augmentedGrammar">
+            <span class="step-number">1</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14,2 14,8 20,8"></polyline>
+            </svg>
+            Gramática Aumentada
+            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6,9 12,15 18,9"></polyline>
+            </svg>
+          </h2>
+          <div id="augmentedGrammar" class="content-panel accordion-content active"></div>
+        </div>        <!-- 2. Conjuntos FIRST -->
+        <div class="section-container">
+          <h2 class="section-title accordion-header" data-section="firstSets">
+            <span class="step-number">2</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="m12 1 3 6-3 6-3-6 3-6z"></path>
+            </svg>
+            Conjuntos FIRST (No terminales)
+            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6,9 12,15 18,9"></polyline>
+            </svg>
+          </h2>
+          <div id="firstSets" class="content-panel accordion-content active"></div>
+        </div>        <!-- 3. Autómata AFD LR(1) -->
+        <div class="section-container">
+          <h2 class="section-title accordion-header" data-section="lr1Graph">
+            <span class="step-number">3</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="6" y2="12"></line>
+              <line x1="18" y1="12" x2="22" y2="12"></line>
+            </svg>
+            Autómata Finito Determinista (AFD) LR(1)
+            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6,9 12,15 18,9"></polyline>
+            </svg>
+          </h2>
+          <div id="lr1Graph" class="content-panel accordion-content active graph-container"></div>
+        </div>        <!-- 4. Tabla ACTION -->
+        <div class="section-container">
+          <h2 class="section-title accordion-header" data-section="actionTableContent">
+            <span class="step-number">4</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3h18v18H3z"></path>
+            </svg>
+            Tabla ACTION (con REDUCE R1, R2, R3...)
+            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6,9 12,15 18,9"></polyline>
+            </svg>
+          </h2>
+          <div id="actionTableContent" class="content-panel accordion-content active">
+            <div class="table-container">
+              <table id="actionTable" class="parsing-table">
+                <thead><tr id="actionHeader"></tr></thead>
+                <tbody id="actionBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>        <!-- 5. Entrada de Cadena y Análisis -->
+        <div class="section-container">
+          <h2 class="section-title accordion-header" data-section="stringAnalysis">
+            <span class="step-number">5</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9,11 12,14 22,4"></polyline>
+              <path d="m21,14v5a2,2 0 0,1 -2,2H5a2,2 0 0,1 -2,-2V7a2,2 0 0,1 2,-2h11"></path>
+            </svg>
+            Análisis de Cadena de Entrada
+            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6,9 12,15 18,9"></polyline>
+            </svg>
+          </h2>
+          <div id="stringAnalysis" class="content-panel accordion-content active">
+            <div class="input-group">
+              <label for="inputString">Cadena de entrada para analizar</label>
+              <textarea id="inputString" placeholder="(a)
+a
+((a))"></textarea>
+              <button id="analyzeBtn" class="analyze-btn">
+                <span class="btn-text">Analizar Cadena</span>
+              </button>
+            </div>
+            <div id="acceptance" class="status" style="display: none;"></div>
+            <h3 class="subsection-title" id="stepsTitle" style="display: none;">Pasos del Parsing</h3>
+            <div id="parsingSteps" class="steps-container"></div>
+          </div>
+        </div>
+
+        <!-- 6. Árbol de Derivación -->
+        <div class="section-container">
+          <h2 class="section-title accordion-header" data-section="parseTree">
+            <span class="step-number">6</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+            Árbol de Derivación
+            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6,9 12,15 18,9"></polyline>
+            </svg>
+          </h2>
+          <div id="parseTree" class="content-panel accordion-content active tree-container"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- viz.js para renderizar el DOT que envía el backend -->
+  <script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+  <script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
